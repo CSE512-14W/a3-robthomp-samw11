@@ -1,10 +1,149 @@
 <!DOCTYPE html>
-<html>
-  <meta charset="utf-8">
-  <head>
-    <title>Assignment 3</title>
-  </head>
-  <body>
-    <div>Coming soon</div>
-  </body>
-</html>
+<meta charset="utf-8">
+<style>
+
+</style>
+
+<body>
+	<p>Loading data</p>
+	<script src="./script/d3.v3.js"></script>
+	<script>
+
+		var margin = {top: 20, right: 30, bottom: 30, left: 40},
+		    width = 1280 - margin.left - margin.right,
+		    height = 900 - margin.top - margin.bottom;
+
+ 		var dateFormat = d3.time.format("%Y");
+ 		var xLeft, xRight, y, xLeftAxis, xRightAxis, yAxis;
+ 		var minYear, maxYear;
+
+ 		// Load the data
+		d3.csv("./dataset/songs_layer_1.csv", 
+			function(d) {
+				data = d.map(function(d) {
+					return {
+					//title: d.title,
+					//release: d.release,
+					//artist_name: d.artist_name,
+					//duration: d.duration,
+					popularity: d.artist_familiarity,
+					hotness: d.artist_hotttnesss,
+					year: dateFormat(new Date(d.year, 1, 1)) //dateFormat.parse(d.year)//new Date(d.year, 1, 1)
+			 		};
+			 	});
+			 	callBack(data);
+			});
+
+		var svg = d3.select("body").append("svg")
+		    	.attr("width", width + margin.left + margin.right)
+		    	.attr("height", height + margin.top + margin.bottom)
+		  		.append("g")
+		    	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		function callBack(data){
+			d3.select("p").remove();
+			initAxises(data);
+			initChart(data);
+			bindData(data);
+		}
+
+		function initAxises(data){
+			minYear = d3.min(data, function(d) { return d.year; }) - 1;
+			maxYear = d3.max(data, function(d) { return d.year; });
+
+			xLeft = d3.scale.linear()
+			.domain([maxYear, minYear])
+			// .domain(d3.extent(data, function(d) { return d.year; }).reverse())
+			.range([0, width/2]);
+
+			xRight = d3.scale.linear()
+			.domain([minYear, maxYear])
+			// .domain(d3.extent(data, function(d) { return d.year; }))
+			.range([width/2, width]);
+
+		    y = d3.scale.linear()
+			.domain([0, 1])
+		    .range([height, 0]);
+
+			xLeftAxis = d3.svg.axis()
+		    .scale(xLeft)
+		    .tickPadding(8)
+		    .orient("bottom");
+
+		    xRightAxis = d3.svg.axis()
+		    .scale(xRight)
+		    .tickPadding(8)
+		    .orient("bottom");
+		    
+		    yAxis = d3.svg.axis()
+		    .scale(y)
+		    .tickPadding(-10) // distance between the axis and number
+		    .orient("right")
+		    .tickSize(0);
+		}
+
+		function initChart(data){
+		    svg.append("g")
+		      .attr("class", "x left axis")
+		      .attr("transform", "translate(0," + (height) + ")")
+		      .call(xLeftAxis);
+
+		    svg.append("g")
+		      .attr("class", "x right axis")
+		      .attr("transform", "translate(0," + (height) + ")")
+		      .call(xRightAxis);
+
+		  	svg.append("g")
+		      .attr("class", "y axis")
+		      .attr("transform", "translate(" + width/2 + ", 0)")
+		      .call(yAxis);
+		}
+
+		function bindData(data){
+			var diff = (maxYear - minYear) * 2.0;
+			//alert(data[0].hotness + " " + (1.0 - parseFloat(data[0].hotness)) + " " + height);
+			svg.selectAll(".hotness")
+				.data(data)
+				.enter()
+				.append("circle")
+				.attr("class", "hotness")
+				.attr("cx", function(d) { return width/2 +  width/diff * (parseInt(d.year) - minYear) - (Math.random() * diff/10); }) // center x
+				.attr("cy", function(d) { return height * (1.0 - parseFloat(d.hotness)); }) // center y
+				.attr("r", 5)
+				//.attr("transform", "translate(")
+				.style("fill-opacity", 0)
+				.style("stroke", "#cc00cc");
+
+			svg.selectAll(".popularity")
+				.data(data)
+				.enter()
+				.append("circle")
+				.attr("class", "popularity")
+				.attr("cx", function(d) { return width/diff * (maxYear - parseInt(d.year)) + (Math.random() * diff/10); }) // center x
+				.attr("cy", function(d) { return height * (1.0 - parseFloat(d.popularity)); }) // center y
+				.attr("r", 5)
+				//.attr("transform", "translate(")
+				.style("fill-opacity", 0)
+				.style("stroke", "#006600")
+				.on("mouseover", mouseover)
+				.on("mouseleave", mouseleave);
+
+		}
+
+		function mouseover(d){
+			
+				// d.style("fill-opacity", 10)
+				// .attr("r", 20);
+		}
+
+		function mouseleave(d){
+
+		}
+
+		function zoom() {
+
+		}
+		
+
+	</script>
+</body>
