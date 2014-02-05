@@ -10,8 +10,8 @@
 	<script>
 
 		var margin = {top: 20, right: 30, bottom: 30, left: 40},
-		    width = 1280 - margin.left - margin.right,
-		    height = 900 - margin.top - margin.bottom;
+		    width = 1080 - margin.left - margin.right,
+		    height = 720 - margin.top - margin.bottom;
 
  		var dateFormat = d3.time.format("%Y");
  		var xLeft, xRight, y, xLeftAxis, xRightAxis, yAxis;
@@ -22,10 +22,9 @@
 			function(d) {
 				data = d.map(function(d) {
 					return {
-					//title: d.title,
-					//release: d.release,
-					//artist_name: d.artist_name,
-					//duration: d.duration,
+					title: d.title,
+					artist_name: d.artist_name,
+					duration: d.duration,
 					popularity: d.artist_familiarity,
 					hotness: d.artist_hotttnesss,
 					year: dateFormat(new Date(d.year, 1, 1)) //dateFormat.parse(d.year)//new Date(d.year, 1, 1)
@@ -109,9 +108,9 @@
 				.attr("class", "hotness")
 				.attr("cx", function(d) { return width/2 +  width/diff * (parseInt(d.year) - minYear) - (Math.random() * diff/10); }) // center x
 				.attr("cy", function(d) { return height * (1.0 - parseFloat(d.hotness)); }) // center y
-				.attr("r", 5)
+				.attr("r", 1)
 				//.attr("transform", "translate(")
-				.style("fill-opacity", 0)
+				//.style("fill-opacity", 0)
 				.style("stroke", "#cc00cc");
 
 			svg.selectAll(".popularity")
@@ -121,12 +120,12 @@
 				.attr("class", "popularity")
 				.attr("cx", function(d) { return width/diff * (maxYear - parseInt(d.year)) + (Math.random() * diff/10); }) // center x
 				.attr("cy", function(d) { return height * (1.0 - parseFloat(d.popularity)); }) // center y
-				.attr("r", 5)
+				.attr("r", 1)
 				//.attr("transform", "translate(")
-				.style("fill-opacity", 0)
-				.style("stroke", "#006600")
-				.on("mouseover", mouseover)
-				.on("mouseleave", mouseleave);
+				//.style("fill-opacity", 0)
+				.style("stroke", "#0066aa");
+			// 	.on("mouseover", mouseover)
+			// 	.on("mouseleave", mouseleave);
 
 		}
 
