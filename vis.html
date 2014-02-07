@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<meta charset="utf-8">
+<html>
+<head>
+<style type="text/css">  
+    text {
+	  font-size: 11px;
+	  pointer-events: none;
+	}
+
+	text.parent {
+	  fill: #1f77b4;
+	}
+
+	circle {
+	  pointer-events: all;
+	}
+
+	circle.parent:hover {
+	  stroke: #ff7f0e;
+	  stroke-width: .5px;
+	}
+
+	circle.child {
+	  pointer-events: none;
+	}
+	
+	.d3-tip {
+	  line-height: 1;
+	  font-weight: bold;
+	  padding: 12px;
+	  background: rgba(0, 0, 0, 0.8);
+	  color: #fff;
+	  border-radius: 2px;
+	}
+
+	/* Creates a small triangle extender for the tooltip */
+	.d3-tip:after {
+	  box-sizing: border-box;
+	  display: inline;
+	  font-size: 10px;
+	  width: 100%;
+	  line-height: 1;
+	  color: rgba(0, 0, 0, 0.8);
+	  content: "\25BC";
+	  position: absolute;
+	  text-align: center;
+	}
+
+	/* Style northward tooltips differently */
+	.d3-tip.n:after {
+	  margin: -1px 0 0 0;
+	  top: 100%;
+	  left: 0;
+	}
+</style>
+</head>
+<body>
+	<script src="script/d3.v3.js"></script>
+	<script src="script/d3.tip.v0.6.3.js"></script>
+	<script>
+		window.onload = function() {
+			max = -1;
+			
+			var w = 1024,
+				h = 640,
+				r = 600,
+				x = d3.scale.linear().range([0, r]),
+				y = d3.scale.linear().range([0, r]),
+				node,
+				rootNode;
+
+			var bubble = d3.layout.pack()
+				.sort(null)
+				.size([r, r])
+				.padding(1.5);
+
+			var vis = d3.select("body").insert("svg:svg", "h2")
+				.attr("width", w)
+				.attr("height", h)
+			  .append("svg:g")
+				.attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
+
+			var tip = d3.tip()
+				.attr('class', 'd3-tip')
+				.offset([-10, 0])
+				.html(function(d) {
+					return "<strong>Artist:</strong> <span style='color:red'>" + d.artist + "</span><br />" + 
+					"<strong>Songs:</strong> <span style='color:red'>" + d.count + "</span><br />" + 
+					"<strong>Avg Dur:</strong> <span style='color:red'>" + d.duration + "</span>";
+				});
+
+			vis.call(tip);
+
+			d3.csv("dataset/songs_small.csv", function(error, root) {
+				var c = classes(root);
+			  
+			  	var color = d3.scale.sqrt()
+					.domain([0, max])
+					.range(["white", "blue"]);
+			  
+			  	node = rootNode = c;
+			  	var bub = bubble.nodes(c);
+			  	node = rootNode = bub[0];
+			  	console.log(node);
+			  	vis.selectAll("circle")
+			  			.data(bub)
+				.enter().append("svg:circle")
+						.attr("class", function(d) { return "parent" })
+				  		.attr("cx", function(d) { return d.x; })
+				  		.attr("cy", function(d) { return d.y; })
+				  		.attr("r", function(d) { return d.r; })
+				  		.attr("fill", function(d) { return d == rootNode ? d3.rgb(200,200,200) : color(d.duration); })
+				  		.on("click", function(d) { 
+				  			console.log(d == node);
+				  			return zoom(node == d ? rootNode : d); })
+				  		.on('mouseover', function(d) { if (d != rootNode) {tip.show(d)}})
+      			  		.on('mouseout', function(d) { if (d != rootNode) {tip.hide(d)}});
+
+				vis.selectAll("text")
+						.data(bub)
+					.enter().append("svg:text")
+						.attr("class", function(d) { return d.children ? "parent" : "child"; })
+						.attr("x", function(d) { return d.x; })
+						.attr("y", function(d) { return d.y; })
+						.attr("dy", ".35em")
+						.attr("text-anchor", "middle")
+						.style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
+						.text(function(d) { return d.artist; });
+
+			  	d3.select(window).on("click", function() { zoom(rootNode); });
+			});
+
+			// Returns a flattened hierarchy containing all leaf nodes under the root.
+			function classes(root) {
+			 	var classes = [];
+
+				root.forEach(function(child) { 
+					if (+child.duration > max) {
+						max = +child.duration;
+					}
+					classes.push({artist: child.artist_name, value: +child.duration, count: 1, duration: +child.duration});
+				});
+
+				return {children: classes, value: 0};
+			}
+
+			function zoom(dTop, i) {
+				var k = r / dTop.r / 2;
+				if (dTop != rootNode) {
+					x.domain([dTop.x - 5*dTop.r, dTop.x + 5*dTop.r]);
+					y.domain([dTop.y - 5*dTop.r, dTop.y + 5*dTop.r]);
+				} else {
+					x.domain([dTop.x - dTop.r, dTop.x + dTop.r]);
+					y.domain([dTop.y - dTop.r, dTop.y + dTop.r]);
+				}
+
+				var t = vis.transition()
+					.duration(d3.event.altKey ? 7500 : 750);
+
+				t.selectAll("circle")
+					.attr("cx", function(d) { return x(d.x); })
+					.attr("cy", function(d) { return y(d.y); })
+					.attr("r", function(d) { return dTop != rootNode ? k * d.r / 5 : k * d.r; });
+
+				t.selectAll("text")
+					.attr("x", function(d) { return x(d.x); })
+					.attr("y", function(d) { return y(d.y); })
+					.style("opacity", function(d) { return k * d.r > 20 ? 1 : 0; });
+
+				node = dTop;
+				d3.event.stopPropagation();
+			}
+		}
+	</script>
+</body>
+</html>
