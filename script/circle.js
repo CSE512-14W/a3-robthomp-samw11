@@ -35,8 +35,19 @@
 	  		.append("g");
 	    	//.attr("transform", "translate(" + margin + "," + margin + ")");
 
+	var tip = d3.tip()
+		.attr('class', 'd3-tip')
+		.offset([-10, 0])
+		.html(function(d) {
+			return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
+			"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
+			"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span>";
+		});
+
+	svg.call(tip);
+
 	function start(data){
-			d3.select("p").remove();
+			d3.select("img").remove();
 			drawAxis();
 			drawLine();
 			bindData(data);
@@ -155,8 +166,9 @@
 			.style("stroke", "#0aa");
 		
 		svg.select(".hotness" + i)
-			.style("fill-opacity", 0.5)
-			.style("stroke", "#0aa");
+			.style("fill", "rgba(256, 128, 0, 1)");
+			
+		tip.show(d);
 	}
 
 	function mouseleave(d, i){
@@ -165,7 +177,8 @@
 			.style("stroke", "#cc00cc");
 
 		svg.select(".hotness" + i)
-			.style("fill-opacity", 0.3)
-			.style("stroke", "#cc00cc");
+			.style("fill", "rgba(0, 128, 0, 0.5)");
+
+		tip.hide(d);
 	}
 }());
