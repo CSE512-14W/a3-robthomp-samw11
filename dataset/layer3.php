@@ -1,9 +1,10 @@
 <?php
 
 $songs = array();
-$keys = array();
+$keys = array("title", "release", "artist_name", "duration", "artist_familiarity", "artist_hotttnesss", "year");
+$file = "./layer3/".$_GET["artist"].".csv";
 
-$success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$handle,$iteration){
+$success = file_get_contents_chunked($file,1024,function($chunk,&$handle,$iteration){
     /*
         * Do what you will with the {&chunk} here
         * {$handle} is passed in case you want to seek
@@ -14,19 +15,15 @@ $success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$han
     
     global $songs, $keys;
     $arr = str_getcsv($chunk);
-    
-    if (strcmp($arr[2], $_GET["artist"]) == 0) {
-		
-		$songs[] = array_combine($keys, $arr);
-	} else if ($iteration == 0) {
-		$keys = $arr;
-	}
+	$songs[] = array_combine($keys, $arr);
 });
 
 if(!$success)
 {
     print("fail");
 } else {
+    // the last element is [false], need to delete that
+    unset($songs[count($songs)-1]);
 	print(json_encode($songs));
 }
 
@@ -38,7 +35,7 @@ function file_get_contents_chunked($file,$chunk_size,$callback)
         $i = 0;
         while (!feof($handle))
         {
-            call_user_func_array($callback,array(stream_get_line($handle, $chunk_size, '♣'),&$handle,$i));
+            call_user_func_array($callback,array(stream_get_line($handle, $chunk_size, 'ø'),&$handle,$i));
             $i++;
         }
 
