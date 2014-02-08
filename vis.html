@@ -58,6 +58,7 @@
 <body>
 	<script src="script/d3.v3.js"></script>
 	<script src="script/d3.tip.v0.6.3.js"></script>
+	<script src="script/jquery-1.11.0.min.js"></script>	
 	<script>
 		window.onload = function() {
 			max = -1;
@@ -81,65 +82,75 @@
 			  .append("svg:g")
 				.attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
 
+			var info = d3.select("body").insert("div");
+			
 			var tip = d3.tip()
 				.attr('class', 'd3-tip')
 				.offset([-10, 0])
 				.html(function(d) {
 					return "<strong>Artist:</strong> <span style='color:red'>" + d.artist + "</span><br />" + 
-					"<strong>Songs:</strong> <span style='color:red'>" + d.count + "</span><br />" + 
-					"<strong>Avg Dur:</strong> <span style='color:red'>" + d.duration + "</span>";
+					"<strong>Songs:</strong> <span style='color:red'>" + d.songs + "</span><br />" + 
+					"<strong>Avg Dur:</strong> <span style='color:red'>" + d.avgDur + "</span>";
 				});
 
 			vis.call(tip);
 
-			d3.csv("dataset/songs_small.csv", function(error, root) {
-				var c = classes(root);
-			  
-			  	var color = d3.scale.sqrt()
-					.domain([0, max])
-					.range(["white", "blue"]);
-			  
-			  	node = rootNode = c;
-			  	var bub = bubble.nodes(c);
-			  	node = rootNode = bub[0];
-			  	console.log(node);
-			  	vis.selectAll("circle")
-			  			.data(bub)
-				.enter().append("svg:circle")
-						.attr("class", function(d) { return "parent" })
-				  		.attr("cx", function(d) { return d.x; })
-				  		.attr("cy", function(d) { return d.y; })
-				  		.attr("r", function(d) { return d.r; })
-				  		.attr("fill", function(d) { return d == rootNode ? d3.rgb(200,200,200) : color(d.duration); })
-				  		.on("click", function(d) { 
-				  			console.log(d == node);
-				  			return zoom(node == d ? rootNode : d); })
-				  		.on('mouseover', function(d) { if (d != rootNode) {tip.show(d)}})
-      			  		.on('mouseout', function(d) { if (d != rootNode) {tip.hide(d)}});
+			//set these to specify what artists to fetch from the data
+			//ranges are inclusive and (for some reason) having a zero before decimal places matters
+			var yearMin = "2008";
+			var yearMax = "2008";
+			var famMin = "0.5";
+			var famMax = "0.6";
 
-				vis.selectAll("text")
-						.data(bub)
-					.enter().append("svg:text")
-						.attr("class", function(d) { return d.children ? "parent" : "child"; })
-						.attr("x", function(d) { return d.x; })
-						.attr("y", function(d) { return d.y; })
-						.attr("dy", ".35em")
-						.attr("text-anchor", "middle")
-						.style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
-						.text(function(d) { return d.artist; });
+			$.getJSON( "dataset/layer2.php", { yearMin: yearMin, yearMax: yearMax, famMin: famMin, famMax: famMax})
+				.done(function( data ) {
+					console.log(data);
+					var c = classes(data);
+			  
+					var color = d3.scale.sqrt()
+						.domain([0, max])
+						.range(["white", "green"]);
+		  
+					node = rootNode = c;
+					var bub = bubble.nodes(c);
+					node = rootNode = bub[0];
+					vis.selectAll("circle")
+							.data(bub)
+					.enter().append("svg:circle")
+							.attr("class", function(d) { return "parent" })
+							.attr("cx", function(d) { return d.x; })
+							.attr("cy", function(d) { return d.y; })
+							.attr("r", function(d) { return d.r; })
+							.attr("fill", function(d) { return d == rootNode ? d3.rgb(200,200,200) : color(d.avgDur); })
+							.on("click", function(d) { 
+								console.log(d == node);
+								return zoom(node == d ? rootNode : d); })
+							.on('mouseover', function(d) { if (d != rootNode) {tip.show(d)}})
+							.on('mouseout', function(d) { if (d != rootNode) {tip.hide(d)}});
 
-			  	d3.select(window).on("click", function() { zoom(rootNode); });
-			});
+					vis.selectAll("text")
+							.data(bub)
+						.enter().append("svg:text")
+							.attr("class", function(d) { return d.children ? "parent" : "child"; })
+							.attr("x", function(d) { return d.x; })
+							.attr("y", function(d) { return d.y; })
+							.attr("dy", ".35em")
+							.attr("text-anchor", "middle")
+							.style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
+							.text(function(d) { return d.artist; });
+
+					d3.select(window).on("click", function() { zoom(rootNode); });
+				});
 
 			// Returns a flattened hierarchy containing all leaf nodes under the root.
 			function classes(root) {
 			 	var classes = [];
 
 				root.forEach(function(child) { 
-					if (+child.duration > max) {
-						max = +child.duration;
+					if (child.totDur/child.songs > max) {
+						max = child.totDur/child.songs;
 					}
-					classes.push({artist: child.artist_name, value: +child.duration, count: 1, duration: +child.duration});
+					classes.push({artist: child.artist, value: child.songs, songs: child.songs, totDur: child.totDur, avgDur: (child.totDur/child.songs).toFixed(1)});
 				});
 
 				return {children: classes, value: 0};
@@ -170,8 +181,39 @@
 
 				node = dTop;
 				d3.event.stopPropagation();
+
+				if (dTop != rootNode) {				
+					info.selectAll("p").remove();
+					info.select("ul").remove();
+					info.append("p").text("Loading");
+					$.getJSON( "dataset/layer3.php", { artist: dTop.artist} )
+						.done(function( data ) {
+							data.sort(function(a,b) {
+								var yc = a["year"].localeCompare(b["year"]);
+								if (yc == 0) {
+									return a["title"].localeCompare(b["title"]);
+								}
+								return yc;
+							});
+							info.selectAll("p").remove();
+							info.append("p").text(data[0]["artist_name"] + ":");
+							info.append("p").text("Total Songs: " + data.length);
+							info.append("p").text("Familiarity: " + data[0]["artist_familiarity"]);
+							info.append("p").text("Hotness: " + data[0]["artist_hotttnesss"]);
+							info.append("ul").selectAll("li")
+								.data(data)
+							.enter().append("li")
+								.text(function(d) { return d["year"] + " - " + d["title"] + " - " + d["duration"]; });
+						});
+				}
 			}
 		}
 	</script>
 </body>
+<!-- Look into abbreviating the bubble labels
+		Animate Go Back text along outer radius, have click outside return to 1st layer 
+		Segment out script and style files
+		add colors as variables to top of code
+		600 duration limit now
+		strip duration digits past first decimal-->
 </html>
