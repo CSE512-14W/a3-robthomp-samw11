@@ -98,11 +98,11 @@
 			//set these to specify what artists to fetch from the data
 			//ranges are inclusive and (for some reason) having a zero before decimal places matters
 			var yearMin = "2008";
-			var yearMax = "2008";
-			var famMin = "0.5";
-			var famMax = "0.6";
+			// var yearMax = "2008";
+			var famMin = "9";
+			var hotMin = "5";
 
-			$.getJSON( "dataset/layer2.php", { yearMin: yearMin, yearMax: yearMax, famMin: famMin, famMax: famMax})
+			$.getJSON( "dataset/layer2.php", { year: yearMin, familiar: famMin, hotness: hotMin})
 				.done(function( data ) {
 					console.log(data);
 					var c = classes(data);
