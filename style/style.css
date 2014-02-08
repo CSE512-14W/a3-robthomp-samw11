@@ -1,10 +1,26 @@
-.xLeft, .xRight {
+.xLeft, .xRight, .bottom_xAxis {
 	fill: none;
-  	stroke: #c0a;
+  	/*stroke: white;*/
+  	stroke: black;
   	shape-rendering: crispEdges;
+  	font: sans-serif;
 }
 
 .line_scale {
 	stroke-dasharray: 15, 5;
-	stroke: #ccc;
+	stroke: green;
 }
+
+.year_scale {
+	fill-opacity:0;
+	stroke: green;
+}
+
+.scale_number {
+	font-size: 20px;
+	/*fill: white;*/
+}
+
+/*body{
+	background-color: black;
+}*/

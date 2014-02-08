@@ -2,19 +2,9 @@
 
 $artists = array();
 $out = array();
-$yearRange = array($_GET["yearMin"], $_GET["yearMax"]);
-$famRange = array();
-$hotRange = array();
-$useFamiliarity = isset($_GET["famMin"]);
-if ($useFamiliarity) {
-	$famRange[] = $_GET["famMin"];
-	$famRange[] = $_GET["famMax"];
-} else {
-	$hotRange[] = $_GET["hotMin"];
-	$hotRange[] = $_GET["hotMax"];
-}
+$file = "./layer2/".$_GET["year"]."_".$_GET["hotness"]."_".$_GET["familiar"].".csv";
 
-$success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$handle,$iteration){
+$success = file_get_contents_chunked($file,1024,function($chunk,&$handle,$iteration){
     /*
         * Do what you will with the {&chunk} here
         * {$handle} is passed in case you want to seek
@@ -25,21 +15,17 @@ $success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$han
     
     //go through once and get a flat list of artists that fit the search criteria
     //make sure each artist is represented only once
-    global $artists, $useFamiliarity, $yearRange, $famRange, $hotRange;
+    global $artists;
     $arr = str_getcsv($chunk);
-    if (!array_key_exists($arr[2], $artists) && strcmp($arr[6], $yearRange[0]) >= 0 && strcmp($arr[6], $yearRange[1]) <= 0 && (($useFamiliarity && strcmp($arr[4], $famRange[0]) >= 0 && strcmp($arr[4], $famRange[1]) <= 0) || (!$useFamiliarity && strcmp($arr[5], $hotRange[0]) >= 0 && strcmp($arr[5], $hotRange[1]) <= 0))) {
+    if (strcmp($arr[2], "") != 0 && !array_key_exists($arr[2], $artists)) {
     	$artists[$arr[2]] = array(
     		"songs" => 0,
-    		"totDur" => 0.0,
-    		"familiarity" => $arr[5],
-    		"hotness" => $arr[4]
+    		"totDur" => 0.0
     	);
-    	
     }
-    
 });
 
-$success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$handle,$iteration){
+$success = file_get_contents_chunked($file,1024,function($chunk,&$handle,$iteration){
 	
 	//now go through full list and add up songs and total song length
 	//for each artist already on the list
@@ -49,7 +35,6 @@ $success = file_get_contents_chunked("songs_full.csv",1024,function($chunk,&$han
     	$artists[$arr[2]]["songs"]++;
     	$artists[$arr[2]]["totDur"] += (float) $arr[3];
     }
-    
 });
 
 //now turn the artist associative array into a numerical array (easier for D3)
@@ -73,7 +58,7 @@ function file_get_contents_chunked($file,$chunk_size,$callback)
         $i = 0;
         while (!feof($handle))
         {
-            call_user_func_array($callback,array(stream_get_line($handle, $chunk_size, '♣'),&$handle,$i));
+            call_user_func_array($callback,array(stream_get_line($handle, $chunk_size, 'ø'),&$handle,$i));
             $i++;
         }
 
