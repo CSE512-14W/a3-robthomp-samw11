@@ -1,8 +1,31 @@
 window.onload = function() {
-	layer2();
+	var QueryString = function () {
+	  // This function is anonymous, is executed immediately and 
+	  // the return value is assigned to QueryString!
+	  var query_string = {};
+	  var query = window.location.search.substring(1);
+	  var vars = query.split("&");
+	  for (var i=0;i<vars.length;i++) {
+	    var pair = vars[i].split("=");
+	    	// If first entry with this name
+	    if (typeof query_string[pair[0]] === "undefined") {
+	      query_string[pair[0]] = pair[1];
+	    	// If second entry with this name
+	    } else if (typeof query_string[pair[0]] === "string") {
+	      var arr = [ query_string[pair[0]], pair[1] ];
+	      query_string[pair[0]] = arr;
+	    	// If third or later entry with this name
+	    } else {
+	      query_string[pair[0]].push(pair[1]);
+	    }
+	  } 
+	    return query_string;
+} ();
+	
+	layer2(QueryString.year, QueryString.hotness, QueryString.popularity);
 }
 
-function layer2() {
+function layer2(year, hotness, popularity) {
 	//color variables
 	var tooltipText = "red";
 	var rootCircleFill = d3.rgb(200,200,200);
@@ -67,7 +90,7 @@ function layer2() {
 	vis.call(tip);
 	
 	//fetch the data
-	$.getJSON( "dataset/layer2.php", { yearMin: yearMin, yearMax: yearMax, famMin: famMin, famMax: famMax})
+	$.getJSON( "dataset/layer2.php", { year:year, hotness:hotness, familiar:popularity})
 		.done(function( data ) {
 			//add rect background that returns user to layer 1 if clicked
 			var outText;
@@ -75,7 +98,7 @@ function layer2() {
 				.attr("width", w)
 				.attr("height", h)
 				.attr("fill", backgroundFill)
-				.on("click", function() { alert("transition to layer 1 function goes here"); })
+				.on("click", function() { window.location.href = "./index.html"; })//alert("transition to layer 1 function goes here"); })
 				.on("mouseover", function() {
 					
 					//show text and change background 
