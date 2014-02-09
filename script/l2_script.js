@@ -14,10 +14,9 @@ function layer2() {
 
 	//set these to specify what artists to fetch from the data
 	//ranges are inclusive and (for some reason) having a zero before decimal places matters
-	var yearMin = "2008";
-	var yearMax = "2008";
-	var famMin = "0.5";
-	var famMax = "0.6";
+	var year = "2008";
+	var fam = "5";
+	var hot = "8";
 	
 	var max = -1;
 	
@@ -67,7 +66,7 @@ function layer2() {
 	vis.call(tip);
 	
 	//fetch the data
-	$.getJSON( "dataset/layer2.php", { yearMin: yearMin, yearMax: yearMax, famMin: famMin, famMax: famMax})
+	$.getJSON( "dataset/layer2.php", { year: year, hotness: hot, familiar: fam})
 		.done(function( data ) {
 			//add rect background that returns user to layer 1 if clicked
 			var outText;
