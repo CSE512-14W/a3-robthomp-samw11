@@ -1,6 +1,6 @@
 .xLeft, .xRight, .bottom_xAxis {
 	fill: none;
-  	stroke: white;
+  	stroke: black;
   	/*stroke: black;*/
   	shape-rendering: crispEdges;
   	font-family: sans-serif;
@@ -18,7 +18,7 @@
 
 .scale_number {
 	font-size: 20px;
-	fill: white;
+	fill: black;
 }
 .d3-tip {
   line-height: 1;
@@ -49,5 +49,41 @@
   left: 0;
 }
 body{
-	background-color: black;
+	background-color: white;
+}
+
+text.child {
+  font-size: 11px;
+  pointer-events: none;
+}
+
+circle {
+  pointer-events: all;
+}
+
+circle.parent:hover {
+  stroke: black;
+  stroke-width: .5px;
+}
+
+circle.child {
+  pointer-events: none;
+}
+
+div {
+	position: absolute;
+	top: 0px;
+}
+
+#bubDiv {
+	left: 0px;
+	height: 640px;
+	width: 1024px;
+}
+
+#infoDiv {
+	left: 1024px;
+	height: 640px;
+	width: 200px;
+	overflow: scroll;
 }

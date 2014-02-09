@@ -1,4 +1,4 @@
-window.onload = function() {
+/*window.onload = function() {
 	var QueryString = function () {
 	  // This function is anonymous, is executed immediately and 
 	  // the return value is assigned to QueryString!
@@ -20,26 +20,21 @@ window.onload = function() {
 	    }
 	  } 
 	    return query_string;
-} ();
+	} ();
 	
 	layer2(QueryString.year, QueryString.hotness, QueryString.popularity);
-}
+}*/
+
+//color variables
+var tooltipText = "red";
+var rootCircleFill = d3.rgb(200,200,200);
+var circleFillRangeMin = "#e5f5f9";
+var circleFillRangeMax = "#2ca25f";
+var backgroundFill = "white";
+var backgroundMouseoverFill = "#d0e4e6";
+var legendBackground = "white";
 
 function layer2(year, hotness, popularity) {
-	//color variables
-	var tooltipText = "red";
-	var rootCircleFill = d3.rgb(200,200,200);
-	var circleFillRangeMin = "#ffeda0";
-	var circleFillRangeMax = "#f03b20";
-	var backgroundFill = "white";
-	var backgroundMouseoverFill = "#d0e4e6";
-	var legendBackground = "white"
-
-	//set these to specify what artists to fetch from the data
-	//ranges are inclusive and (for some reason) having a zero before decimal places matters
-	var year = "2008";
-	var fam = "5";
-	var hot = "8";
 	
 	var max = -1;
 	
@@ -49,10 +44,12 @@ function layer2(year, hotness, popularity) {
 		r = 600,
 		infoW = 200,
 		textAnimDur = 500,
+		inTransLength = 1000,
 		x = d3.scale.linear().range([0, r]),
 		y = d3.scale.linear().range([0, r]),
 		node,
-		rootNode;
+		rootNode,
+		legend;
 
 	//the bubble-organizing method
 	var bubble = d3.layout.pack()
@@ -60,6 +57,17 @@ function layer2(year, hotness, popularity) {
 		.size([r, r])
 		.padding(1.5);
 
+	var l1color = d3.scale.sqrt()
+		.domain([1922, 2010])
+		.range(["#ffeda0", "#f03b20"]);
+
+	//add divs
+	d3.select("body").append("div")
+		.attr("id", "bubDiv");
+	
+	d3.select("body").append("div")
+		.attr("id", "infoDiv");
+	
 	//the svg tag that holds the bubble graph
 	var bubSvg = d3.select("#bubDiv").insert("svg:svg", "h2")
 		.attr("width", w)
@@ -97,7 +105,9 @@ function layer2(year, hotness, popularity) {
 				.attr("width", w)
 				.attr("height", h)
 				.attr("fill", backgroundFill)
-				.on("click", function() { window.location.href = "./index.html"; })//alert("transition to layer 1 function goes here"); })
+				.on("click", function() { 
+					transitionBack(); 
+				})
 				.on("mouseover", function() {
 					
 					//show text and change background 
@@ -148,13 +158,14 @@ function layer2(year, hotness, popularity) {
 					.attr("class", function(d) { return "parent" })
 					.attr("cx", function(d) { return d.x; })
 					.attr("cy", function(d) { return d.y; })
-					.attr("r", function(d) { return d.r; })
-					.attr("fill", function(d) { return d == rootNode ? rootCircleFill : color(d.avgDur); })
-					.on("click", function(d) { 
-						console.log(d == node);
-						return zoom(node == d ? rootNode : d); })
+					.attr("r", function(d) { return d == rootNode ? d.r : 0 })
+					.attr("fill", function(d) { return d == node ? rootCircleFill : color(d.avgDur); })
+					.on("click", function(d) { return zoom(node == d ? rootNode : d); })
 					.on('mouseover', function(d) { if (d != rootNode) {tip.show(d)}})
-					.on('mouseout', function(d) { if (d != rootNode) {tip.hide(d)}});
+					.on('mouseout', function(d) { if (d != rootNode) {tip.hide(d)}})
+					.transition()
+						.duration(inTransLength)
+						.attr("r", function(d) { return d.r; });
 
 			//make the bubble labels
 			vis.selectAll("text")
@@ -165,8 +176,11 @@ function layer2(year, hotness, popularity) {
 					.attr("y", function(d) { return d.y; })
 					.attr("dy", ".35em")
 					.attr("text-anchor", "middle")
-					.style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
-					.text(function(d) { return d.artist; });
+					.style("opacity", 0)
+					.text(function(d) { return d.artist; })
+					.transition()
+						.duration(inTransLength)
+						.style("opacity", function(d) { return d.r > 20 ? 1 : 0; });
 		});
 
 	// Returns a flattened hierarchy containing all leaf nodes under the root.
@@ -330,10 +344,15 @@ function layer2(year, hotness, popularity) {
 			.attr("height", h - 10)
 			.attr("fill", circleFillRangeMin)
 			.attr("stroke", circleFillRangeMax)
-			.attr("stroke-width", 1);
+			.attr("stroke-width", 1)
+			.attr("opacity", 0)
+			.transition()
+				.duration(inTransLength)
+				.attr("opacity", 1);
 	
 		//add instructional text
-		var textGroup = info.append("svg:g");
+		var textGroup = info.append("svg:g")
+			.attr("opacity", 0);
 		textGroup.append("svg:text")
 			.attr("x", -infoW/2)
 			.attr("y", h/2)
@@ -348,6 +367,7 @@ function layer2(year, hotness, popularity) {
 			.text("further artist information");
 		textGroup.transition()
 			.duration(textAnimDur)
+			.attr("opacity", 1)
 			.attr("transform", "translate(" + infoW + ")");
 	}
 	
@@ -369,7 +389,8 @@ function layer2(year, hotness, popularity) {
 			.style("stop-color", circleFillRangeMax)
 			.style("stop-opacity", "1");
 		
-		var legend = bubSvg.append("g");
+		legend = bubSvg.append("g")
+			.attr("opacity", 0);
 	
 		//background
 		legend.append("rect")
@@ -412,5 +433,35 @@ function layer2(year, hotness, popularity) {
 			.text(Math.round(max));
 		
 		legend.attr("transform", "translate(" + 5 + "," + (h - 85) + ")");
+		legend.transition()
+			.duration(inTransLength)
+			.attr("opacity", 1);
+	}
+
+	function transitionBack() {
+		vis.selectAll("circle").filter(function(d) { return d == rootNode })
+			.transition()
+				.duration(inTransLength)
+				.attr("fill", l1color(year))
+				.delay(inTransLength)
+				.each("end", function() {
+					d3.selectAll("div").remove();
+					layer1({year: year, hotness: hotness, popularity: popularity});
+				});;
+		vis.selectAll("circle").filter(function(d) { return d != rootNode })
+			.transition()
+				.duration(inTransLength)
+				.attr("r", 0)
+				.attr("cx", 300)
+				.attr("cy", 300);
+		vis.selectAll("text")
+			.transition()
+				.duration(inTransLength)
+				.style("opacity", 0)
+				.attr("x", 300)
+				.attr("y", 300);
+		legend.transition()
+			.duration(inTransLength)
+			.style("opacity", 0);
 	}
 }
