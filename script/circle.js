@@ -1,13 +1,18 @@
 (function() {
+
 	var dataPath = "./dataset/songs.json";
-	var margin = 50,
+	var margin = 40,
 		offset = 30,
 		width = 1024,
 		height = 720;
-		radius = 280,
+		radius = 240,
+		r = 600;
 		center = {x:radius + margin, y:radius + margin};
 
-	
+	var legendBackground = "black",
+		circleFillRangeMin = "#ffeda0",
+		circleFillRangeMax = "#f03b20";
+
 	var svg;
 	var minYear, min, maxYear, max, year_apart = 15;
 	var radiScale;
@@ -23,7 +28,7 @@
 
 		color = d3.scale.sqrt()
 					.domain([min, max])
-					.range([d3.rgb(255, 237, 160), d3.rgb(240, 59, 32)]);
+					.range([circleFillRangeMin, circleFillRangeMax]);
 
 		cir = d3.scale.linear()
 			.domain(d3.extent(data, function(d) { return d.hotArr.length; }))
@@ -53,21 +58,32 @@
 	svg = d3.select("body").append("svg")
 		   	.attr("width", width)
 	    	.attr("height", height)
-	  		.append("g");
+	  		.append("g")
+	  		.attr("transform", "translate(" + (width - r) / 2 + "," + margin+ ")");
 	    	//.attr("transform", "translate(" + margin + "," + margin + ")");
 
 	var tip = d3.tip()
-		.attr('class', 'd3-tip')
-		.offset([-10, 0])
-		.html(function(d) {
-			return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
-			"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
-			"<strong>#Hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span><br />" + 
-			"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
-			"<strong>#Popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
-		});
+		.attr('class', 'd3-tip');
+		// .attr("id", "tip_hot")
+		// .offset([-10, 0])
+		// .html(function(d) {
+		// 	return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
+		// 	"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
+		// 	"<strong>#Hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
+		// });
+
+	// var tip_pop = d3.tip()
+	// 	.attr("class", "d3-tip")
+	// 	.attr("id", "tip_pop")
+	// 	.offset([-10, 0])
+	// 	.html(function(d) {
+	// 		return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
+	// 		"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
+	// 		"<strong>#Popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
+	// 	});
 
 	svg.call(tip);
+	//svg.call(tip_pop);
 
 	function start(data){
 			d3.select("img").remove();
@@ -75,6 +91,7 @@
 			drawAxis();
 			drawLine();
 			drawYearScale();
+			drawLegend();
 			bindData(data);
 		}
 
@@ -207,6 +224,66 @@
 
 	}
 
+	function drawLegend(){
+		var grad = svg.append("defs")
+			.append("svg:linearGradient")
+				.attr("id", "grad1")
+				.attr("x1", "0%")
+				.attr("y1", "0%")
+				.attr("x2", "100%")
+				.attr("y2", "0%");
+
+		grad.append("svg:stop")
+			.attr("offset", "0%")
+			.style("stop-color", circleFillRangeMin)
+			.style("stop-opacity", "1");
+		
+		grad.append("svg:stop")
+			.attr("offset", "100%")
+			.style("stop-color", circleFillRangeMax)
+			.style("stop-opacity", "1");
+
+		var legend = svg.append("g")
+		//background
+		legend.append("rect")
+			.attr("width", 140)
+			.attr("height", 65)
+			//.attr("fill", legendBackground)
+			//.attr("stroke", "black");
+		
+		legend.append("text")
+			.attr("x", 20)
+			.attr("y", 15)
+			.attr("font-size", 12)
+			.style("fill", "white")
+			.text("Year");
+	
+		legend.append("rect")
+			.attr("width", 80)
+			.attr("height", 20)
+			.attr("x", 20)
+			.attr("y", 25)
+			.attr("fill", "url(#grad1)");
+		
+		legend.append("text")
+			.attr("x", 20)
+			.attr("y", 55)
+			.attr("font-size", 10)
+			.style("fill", "white")
+			.attr("text-anchor", "middle")
+			.text(min);
+		
+		legend.append("text")
+			.attr("x", 100)
+			.attr("y", 55)
+			.attr("font-size", 10)
+			.style("fill", "white")
+			.attr("text-anchor", "middle")
+			.text(max);
+		
+		legend.attr("transform", "translate(" + (5 - (width - r) / 2) + "," + (height - 185) + ")");
+	}
+
 	function bindData(data){
 
 		svg.selectAll("hotness")
@@ -223,7 +300,8 @@
 			.style("fill-opacity", 0.3)
 			//.style("stroke", "#cc00cc")
 			.on("mouseover", mouseover)
-			.on("mouseleave", mouseleave);
+			.on("mouseleave", mouseleave)
+			.on("click", toSecLayer);
 
 		svg.selectAll("popularity")
 			.data(data)
@@ -238,7 +316,8 @@
 			.style("fill-opacity", 0.3)
 			//.style("stroke", "#cc00cc")
 			.on("mouseover", mouseover)
-			.on("mouseleave", mouseleave);
+			.on("mouseleave", mouseleave)
+			.on("click", toSecLayer);
 	}
 
 	function coord(d, coordinate, type){
@@ -268,16 +347,39 @@
 	// TODO highlight the scale line
 	function mouseover(d, i){
 		svg.select("#pop" + i)
-			//.style("fill", "white")
-			.style("fill", "black")
+			.style("fill", "white")
+			// .style("fill", "black")
 			.style("fill-opacity", 1);			
 		
 		svg.select("#hotness" + i)
-			// .style("fill", "white")
-			.style("fill", "black")
+			.style("fill", "white")
+			// .style("fill", "black")
 			.style("fill-opacity", 1);
 			
+		var coord = d3.mouse(this);
+		
+		if (coord[1] > center.y + 20) {
+				tip.offset([-10, 0])
+			.html(function(d) {
+			return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
+			"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
+			"<strong>#Popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
+		});
+
+			
+		} else {
+
+			tip.offset([-10, 0])
+			.html(function(d) {
+				return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
+			"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
+			"<strong>#Hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
+			
+		});
+			
+		}
 		tip.show(d);
+		
 	}
 
 	// TODO highlight the scale line
@@ -290,6 +392,19 @@
 			.style("fill-opacity", 0.3)
 			.style("fill", function(d) { return color(d.year); });
 
+		var coord = d3.mouse(this);
 		tip.hide(d);
+		// if (coord.y > center.y) {
+		// 	tip_pop.hide(d);
+		// } else {
+		// 	tip_hot.hide(d);	
+		// }
+	}
+
+	function toSecLayer(d, i){
+	    // var xy = d3.mouse(this);
+	    // console.log(xy);
+		tip.hide(d);
+		window.location.href = "./vis.html?year=" + d.year + "&hotness=" + d.hotness + "&popularity=" + d.popularity;
 	}
 }());
