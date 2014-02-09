@@ -2,6 +2,22 @@
 	layer1();
 })();
 
+
+//color variables
+var legendBackground = "white",
+	circleFillRangeMin = "#ffeda0",
+	circleFillRangeMax = "#f03b20",
+	legendTextColor = "black";
+
+var l2tooltipText = "red",
+	rootCircleFill = d3.rgb(200,200,200),
+	l2circleFillRangeMin = "#e5f5f9",
+	l2circleFillRangeMax = "#2ca25f",
+	l2backgroundFill = "white",
+	l2backgroundMouseoverFill = "#d0e4e6",
+	l2legendBackground = "white",
+	l2legendTextColor = "black";
+
 function layer1(trans) {
 	var dataPath = "./dataset/songs.json";
 	var margin = 40,
@@ -13,11 +29,6 @@ function layer1(trans) {
 		center = {x:radius + margin, y:radius + margin},
 		inTransLength = 1000,
 		outTransLength = 1000;
-
-	var legendBackground = "white",
-		circleFillRangeMin = "#ffeda0",
-		circleFillRangeMax = "#f03b20",
-		legendTextColor = "black";
 
 	var svg;
 	var minYear, min, maxYear, max, year_apart = 15;

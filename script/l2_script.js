@@ -25,15 +25,6 @@
 	layer2(QueryString.year, QueryString.hotness, QueryString.popularity);
 }*/
 
-//color variables
-var tooltipText = "red";
-var rootCircleFill = d3.rgb(200,200,200);
-var circleFillRangeMin = "#e5f5f9";
-var circleFillRangeMax = "#2ca25f";
-var backgroundFill = "white";
-var backgroundMouseoverFill = "#d0e4e6";
-var legendBackground = "white";
-
 function layer2(year, hotness, popularity) {
 	
 	var max = -1;
@@ -59,7 +50,7 @@ function layer2(year, hotness, popularity) {
 
 	var l1color = d3.scale.sqrt()
 		.domain([1922, 2010])
-		.range(["#ffeda0", "#f03b20"]);
+		.range([circleFillRangeMin, circleFillRangeMax]);
 
 	//add divs
 	d3.select("body").append("div")
@@ -88,9 +79,9 @@ function layer2(year, hotness, popularity) {
 		.attr('class', 'd3-tip')
 		.offset([-10, 0])
 		.html(function(d) {
-			return "<strong>Artist:</strong> <span style='color:" + tooltipText + "'>" + d.artist + "</span><br />" + 
-			"<strong>Songs:</strong> <span style='color:" + tooltipText + "'>" + d.songs + "</span><br />" + 
-			"<strong>Avg Dur:</strong> <span style='color:" + tooltipText + "'>" + d.avgDur + "</span>";
+			return "<strong>Artist:</strong> <span style='color:" + l2tooltipText + "'>" + d.artist + "</span><br />" + 
+			"<strong>Songs:</strong> <span style='color:" + l2tooltipText + "'>" + d.songs + "</span><br />" + 
+			"<strong>Avg Dur:</strong> <span style='color:" + l2tooltipText + "'>" + d.avgDur + "</span>";
 		});
 
 	//activate the tooltip
@@ -104,7 +95,7 @@ function layer2(year, hotness, popularity) {
 			bubSvg.insert("svg:rect", "g")
 				.attr("width", w)
 				.attr("height", h)
-				.attr("fill", backgroundFill)
+				.attr("fill", l2backgroundFill)
 				.on("click", function() { 
 					transitionBack(); 
 				})
@@ -119,14 +110,14 @@ function layer2(year, hotness, popularity) {
 						.attr("y", 15);
 					
 					bubSvg.select("rect")
-						.attr("fill", backgroundMouseoverFill);
+						.attr("fill", l2backgroundMouseoverFill);
 						
 				})
 				.on("mouseout", function() {
 					outText.remove();
 					
 					bubSvg.select("rect")
-						.attr("fill", backgroundFill);
+						.attr("fill", l2backgroundFill);
 				});
 			
 			//organize data
@@ -135,7 +126,7 @@ function layer2(year, hotness, popularity) {
 			//color scale has to be defined here, after the max avgDuration has been found
 			color = d3.scale.sqrt()
 				.domain([0, max])
-				.range([circleFillRangeMin, circleFillRangeMax]);
+				.range([l2circleFillRangeMin, l2circleFillRangeMax]);
   
   			//make legend
 			drawLegend();
@@ -342,8 +333,8 @@ function layer2(year, hotness, popularity) {
 		info.append("svg:rect")
 			.attr("width", infoW)
 			.attr("height", h - 10)
-			.attr("fill", circleFillRangeMin)
-			.attr("stroke", circleFillRangeMax)
+			.attr("fill", l2circleFillRangeMin)
+			.attr("stroke", l2circleFillRangeMax)
 			.attr("stroke-width", 1)
 			.attr("opacity", 0)
 			.transition()
@@ -381,12 +372,12 @@ function layer2(year, hotness, popularity) {
 				.attr("y2", "0%");
 		grad.append("svg:stop")
 			.attr("offset", "0%")
-			.style("stop-color", circleFillRangeMin)
+			.style("stop-color", l2circleFillRangeMin)
 			.style("stop-opacity", "1");
 		
 		grad.append("svg:stop")
 			.attr("offset", "100%")
-			.style("stop-color", circleFillRangeMax)
+			.style("stop-color", l2circleFillRangeMax)
 			.style("stop-opacity", "1");
 		
 		legend = bubSvg.append("g")
@@ -396,19 +387,21 @@ function layer2(year, hotness, popularity) {
 		legend.append("rect")
 			.attr("width", 140)
 			.attr("height", 80)
-			.attr("fill", legendBackground)
-			.attr("stroke", "black");
+			.attr("fill", l2legendBackground)
+			.attr("stroke", l2legendTextColor);
 		
 		legend.append("text")
 			.attr("x", 4)
 			.attr("y", 15)
 			.attr("font-size", 11.5)
+			.attr("fill", l2legendTextColor)
 			.text("Size: Num. Songs");
 	
 		legend.append("text")
 			.attr("x", 4)
 			.attr("y", 30)
 			.attr("font-size", 11.5)
+			.attr("fill", l2legendTextColor)
 			.text("Color: Avg. Song Duration");
 	
 		legend.append("rect")
@@ -416,12 +409,14 @@ function layer2(year, hotness, popularity) {
 			.attr("height", 20)
 			.attr("x", 20)
 			.attr("y", 40)
+			.attr("fill", l2legendTextColor)
 			.attr("fill", "url(#grad1)");
 		
 		legend.append("text")
 			.attr("x", 20)
 			.attr("y", 70)
 			.attr("font-size", 10)
+			.attr("fill", l2legendTextColor)
 			.attr("text-anchor", "middle")
 			.text("0");
 		
@@ -430,6 +425,7 @@ function layer2(year, hotness, popularity) {
 			.attr("y", 70)
 			.attr("font-size", 10)
 			.attr("text-anchor", "middle")
+			.attr("fill", l2legendTextColor)
 			.text(Math.round(max));
 		
 		legend.attr("transform", "translate(" + 5 + "," + (h - 85) + ")");
