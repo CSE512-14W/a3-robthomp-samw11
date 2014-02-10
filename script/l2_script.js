@@ -1,30 +1,3 @@
-/*window.onload = function() {
-	var QueryString = function () {
-	  // This function is anonymous, is executed immediately and 
-	  // the return value is assigned to QueryString!
-	  var query_string = {};
-	  var query = window.location.search.substring(1);
-	  var vars = query.split("&");
-	  for (var i=0;i<vars.length;i++) {
-	    var pair = vars[i].split("=");
-	    	// If first entry with this name
-	    if (typeof query_string[pair[0]] === "undefined") {
-	      query_string[pair[0]] = pair[1];
-	    	// If second entry with this name
-	    } else if (typeof query_string[pair[0]] === "string") {
-	      var arr = [ query_string[pair[0]], pair[1] ];
-	      query_string[pair[0]] = arr;
-	    	// If third or later entry with this name
-	    } else {
-	      query_string[pair[0]].push(pair[1]);
-	    }
-	  } 
-	    return query_string;
-	} ();
-	
-	layer2(QueryString.year, QueryString.hotness, QueryString.popularity);
-}*/
-
 function layer2(year, hotness, popularity) {
 	
 	var max = -1;
@@ -276,7 +249,8 @@ function layer2(year, hotness, popularity) {
 						.data(data)
 					.enter().append("svg:text")
 						.attr("x", 10 - infoW)
-						.attr("y", function(d, i) { return i*15 + 90; })
+						// .attr("y", function(d, i) { return i*15 + 90; })
+						.attr("y", function(d, i) { return i*15 + 70; })
 						.attr("font-size", 11)
 						.text(function(d) { return d["year"] + " - " + d["title"] + " - " + parseFloat(d["duration"]).toFixed(1); });	
 					
@@ -302,17 +276,18 @@ function layer2(year, hotness, popularity) {
 						.attr("font-size", 14)
 						.text("Total Songs: " + data.length);
 					
-					textGroup.append("svg:text")
-						.attr("x", 15- infoW)
-						.attr("y", 52)
-						.attr("font-size", 14)
-						.text("Familiarity: " + data[0]["artist_familiarity"]);
+					// Its somehow confusing to show the familiarity and hotness
+					// textGroup.append("svg:text")
+					// 	.attr("x", 15- infoW)
+					// 	.attr("y", 52)
+					// 	.attr("font-size", 14)
+					// 	.text("Familiarity: " + Math.round(data[0]["artist_familiarity"]*10));
 					
-					textGroup.append("text")
-						.attr("x", 15- infoW)
-						.attr("y", 67)
-						.attr("font-size", 14)
-						.text("Hotness: " + data[0]["artist_hotttnesss"]);
+					// textGroup.append("text")
+					// 	.attr("x", 15- infoW)
+					// 	.attr("y", 67)
+					// 	.attr("font-size", 14)
+					// 	.text("Hotness: " + Math.round(data[0]["artist_hotttnesss"]*10));
 					
 					//after everything is added, set svg window size to match the text width and enable horizontal scrolling
 					if (textGroup[0][0].getBBox().width > infoW) {

@@ -2,7 +2,6 @@
 	layer1();
 })();
 
-
 //color variables
 var legendBackground = "white",
 	circleFillRangeMin = "#ffeda0",
@@ -21,7 +20,7 @@ var l2tooltipText = "red",
 function layer1(trans) {
 	var dataPath = "./dataset/songs.json";
 	var margin = 40,
-		offset = 30,
+		offset = 28,
 		width = 1024,
 		height = 640;
 		radius = 240,
@@ -30,12 +29,12 @@ function layer1(trans) {
 		inTransLength = 1000,
 		outTransLength = 1000;
 
-	var svg;
-	var minYear, min, maxYear, max, year_apart = 15;
-	var radiScale;
-	var color;
-	var tip, cir;
+	var svg,
+		minYear, min, maxYear, max, year_apart = 15,
+		radiScale,
+		color, tip, cir;
 
+	// initialize variables
 	function initVar(data) {
 		min = d3.min(data, function(d) { return d.year; });
 		max = d3.max(data, function(d) { return d.year; });
@@ -68,40 +67,20 @@ function layer1(trans) {
 						year: d.year
 				 		};
 				 	});
-				
+				// start drawing the visualization
 	 			start(data);
 			});
+
+	// the tool tip
+	tip = d3.tip().attr('class', 'd3-tip');
 
 	svg = d3.select("body").append("svg")
 		   	.attr("width", width)
 	    	.attr("height", height)
 	  		.append("g")
-	  		.attr("transform", "translate(" + (width - r) / 2 + "," + (height - r) / 2 + ")");
-	    	//.attr("transform", "translate(" + margin + "," + margin + ")");
-
-	var tip = d3.tip()
-		.attr('class', 'd3-tip');
-		// .attr("id", "tip_hot")
-		// .offset([-10, 0])
-		// .html(function(d) {
-		// 	return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
-		// 	"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
-		// 	"<strong>#Hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
-		// });
-
-	// var tip_pop = d3.tip()
-	// 	.attr("class", "d3-tip")
-	// 	.attr("id", "tip_pop")
-	// 	.offset([-10, 0])
-	// 	.html(function(d) {
-	// 		return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
-	// 		"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
-	// 		"<strong>#Popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
-	// 	});
-
-	svg.call(tip);
-	//svg.call(tip_pop);
-
+	  		.attr("transform", "translate(" + (width - r) / 2 + "," + (height - r) / 2 + ")")
+	  		.call(tip);
+	
 	function start(data){
 			d3.select("img").remove();
 			initVar(data);
@@ -112,6 +91,7 @@ function layer1(trans) {
 			bindData(data);
 		}
 
+	// 3 axises in total, left, right and bottom
 	function drawAxis(){
 		var xLeft, xRight, xLeftAxis, xRightAxis, bottom;
 
@@ -125,15 +105,13 @@ function layer1(trans) {
 
 		xLeftAxis = d3.svg.axis()
 		    .scale(xLeft)
-		    .tickPadding(5)
+		    .tickPadding(3)
 		    .ticks(d3.time.years, year_apart);
-	    	//.orient("bottom");
 
 	    xRightAxis = d3.svg.axis()
 		    .scale(xRight)
-		    .tickPadding(5)
+		    .tickPadding(3)
 		    .ticks(d3.time.years, year_apart);
-		    //.orient("bottom");
 
 		svg.append("line")
 			.attr("class", "bottom_xAxis")
@@ -143,20 +121,17 @@ function layer1(trans) {
 			.attr("y2", center.y + offset)
 			.attr("opacity", 0)
 			.transition()
-				.duration(inTransLength)
-				.attr("opacity", 1);
+			.duration(inTransLength)
+			.attr("opacity", 1);
 				
-			//.style("stroke", "white");
-
-
 		svg.append("g")
 		    .attr("class", "xLeft axis")
 		    .attr("transform", "translate(0," + center.y + ")")
 		    .call(xLeftAxis)
 		    .attr("opacity", 0)
 			.transition()
-				.duration(inTransLength)
-				.attr("opacity", 1);
+			.duration(inTransLength)
+			.attr("opacity", 1);
 
 	    svg.append("g")
 	    	.attr("class", "xRight axis")
@@ -164,17 +139,18 @@ function layer1(trans) {
 	    	.call(xRightAxis)
 	    	.attr("opacity", 0)
 			.transition()
-				.duration(inTransLength)
-				.attr("opacity", 1);
+			.duration(inTransLength)
+			.attr("opacity", 1);
 	}
 
 	function drawLine(data){
 		var line_offset = 25,
-			text_offset = 35;
+			text_offset = 30;
 		// hotness line scale
 		for (var i = 1; i <= 9; i++) {
 			svg.append("line")
 				.attr("class", "line_scale")
+				.attr("id", "hot_line" + i)
 				.attr("x1", center.x - (Math.cos(i*Math.PI/10) * (radius + line_offset)))
 				.attr("y1", center.y - (Math.sin(i*Math.PI/10) * (radius + line_offset)))
 				.attr("x2", center.x)
@@ -184,13 +160,13 @@ function layer1(trans) {
 					.duration(inTransLength)
 					.attr("opacity", 1);
 
-			var text_x = center.x - (Math.cos(i*Math.PI/10) * (radius + text_offset)),
-				text_y = center.y - (Math.sin(i*Math.PI/10) * (radius + text_offset)),
+			var text_x = center.x - (Math.cos(i*Math.PI/10 - 0.02) * (radius + text_offset)),
+				text_y = center.y - (Math.sin(i*Math.PI/10 - 0.02) * (radius + text_offset)),
 				rotate = 180 - Math.atan2(text_x-center.x, text_y-center.y)/(Math.PI/180);
 			
 			// add the number
 			svg.append("text")
-				.attr("id", "scale_number" + i)
+				.attr("id", "hot_number" + i)
 				.attr("class", "scale_number")
 				.attr("x", text_x)
 				.attr("y", text_y)
@@ -205,6 +181,7 @@ function layer1(trans) {
 		for (var i = 11; i <= 19; i++){
 			svg.append("line")
 				.attr("class", "line_scale")
+				.attr("id", "pop_line" + (i-10))
 				.attr("x1", center.x - (Math.cos(i*Math.PI/10) * (radius + line_offset)))
 				.attr("y1", center.y + offset - (Math.sin(i*Math.PI/10) * (radius + line_offset)))
 				.attr("x2", center.x)
@@ -214,13 +191,13 @@ function layer1(trans) {
 					.duration(inTransLength)
 					.attr("opacity", 1);
 
-			var text_x = center.x - (Math.cos(i*Math.PI/10) * (radius + text_offset)),
-				text_y = center.y + offset - (Math.sin(i*Math.PI/10) * (radius + text_offset)),
+			var text_x = center.x - (Math.cos(i*Math.PI/10 - 0.02) * (radius + text_offset)),
+				text_y = center.y + offset - (Math.sin(i*Math.PI/10 - 0.02) * (radius + text_offset)),
 				rotate = 180 - Math.atan2(text_x-center.x, text_y-center.y)/(Math.PI/180);
 			
 			// add text
 			svg.append("text")
-				.attr("id", "scale_number" + i)
+				.attr("id", "pop_number" + (i-10))
 				.attr("class", "scale_number")
 				.attr("x", text_x)
 				.attr("y", text_y)
@@ -232,10 +209,69 @@ function layer1(trans) {
 					.attr("opacity", 1);
 		}
 
+		var text_x = center.x - radius - 30,
+			text_y = center.y + 10;
 
+		svg.append("text")
+				.attr("id", "hot_number" + 0)
+				.attr("class", "scale_number")
+				.attr("x", text_x)
+				.attr("y", text_y)
+				.text(0)
+				.attr("transform", "rotate(" + 270 + " " + text_x + "," + text_y + ")")
+				.attr("opacity", 0)
+				.transition()
+				.duration(inTransLength)
+				.attr("opacity", 1);
+
+		text_x = center.x + radius + 30,
+		text_y = center.y;
+
+		svg.append("text")
+				.attr("id", "hot_number" + 10)
+				.attr("class", "scale_number")
+				.attr("x", text_x)
+				.attr("y", text_y)
+				.text(1)
+				.attr("transform", "rotate(" + 90 + " " + text_x + "," + text_y + ")")
+				.attr("opacity", 0)
+				.transition()
+				.duration(inTransLength)
+				.attr("opacity", 1);
+
+		text_x = center.x - radius - 30,
+		text_y = center.y + offset;
+
+		svg.append("text")
+				.attr("id", "pop_number" + 10)
+				.attr("class", "scale_number")
+				.attr("x", text_x)
+				.attr("y", text_y)
+				.text(1)
+				.attr("transform", "rotate(" + 270 + " " + text_x + "," + text_y + ")")
+				.attr("opacity", 0)
+				.transition()
+				.duration(inTransLength)
+				.attr("opacity", 1);
+
+		text_x = center.x + radius + 30,
+		text_y = center.y + 20;
+
+		svg.append("text")
+				.attr("id", "pop_number" + 0)
+				.attr("class", "scale_number")
+				.attr("x", text_x)
+				.attr("y", text_y)
+				.text(0)
+				.attr("transform", "rotate(" + 90 + " " + text_x + "," + text_y + ")")
+				.attr("opacity", 0)
+				.transition()
+				.duration(inTransLength)
+				.attr("opacity", 1);
 	}
 
 	function drawYearScale(data){
+		// need to hard code the year
 		var arr = [1935, 1950, 1965, 1980, 1995, 2010];
 		var points = 50;
 
@@ -275,7 +311,6 @@ function layer1(trans) {
 				.duration(inTransLength)
 				.attr("opacity", 1);
 		}
-
 	}
 
 	function drawLegend(){
@@ -300,36 +335,51 @@ function layer1(trans) {
 		var legend = svg.append("g")
 		//background
 		legend.append("rect")
-			.attr("width", 140)
-			.attr("height", 65)
+			.attr("width", 165)
+			.attr("height", 75)
 			.attr("fill", legendBackground)
 			.attr("stroke", "black");
 		
 		legend.append("text")
-			.attr("x", 20)
-			.attr("y", 15)
-			.attr("font-size", 12)
+			.attr("x", 7)
+			.attr("y", 30)
+			.attr("font-size", 11.5)
 			.style("fill", legendTextColor)
 			.text("Year");
+
+		legend.append("text")
+			.attr("x", 7)
+			.attr("y", 15)
+			.attr("font-size", 11.5)
+			.style("fill", legendTextColor)
+			.text("Size: Num. hotness/popularity");
 	
 		legend.append("rect")
-			.attr("width", 80)
+			.attr("width", 125)
 			.attr("height", 20)
 			.attr("x", 20)
-			.attr("y", 25)
+			.attr("y", 35)
 			.attr("fill", "url(#grad1)");
 		
 		legend.append("text")
 			.attr("x", 20)
-			.attr("y", 55)
+			.attr("y", 65)
 			.attr("font-size", 10)
 			.style("fill", legendTextColor)
 			.attr("text-anchor", "middle")
 			.text(min);
 		
+		// legend.append("text")
+		// 	.attr("x", 82.5)
+		// 	.attr("y", 65)
+		// 	.attr("font-size", 10)
+		// 	.style("fill", legendTextColor)
+		// 	.attr("text-anchor", "middle")
+		// 	.text((max+min)/2);
+
 		legend.append("text")
-			.attr("x", 100)
-			.attr("y", 55)
+			.attr("x", 145)
+			.attr("y", 65)
 			.attr("font-size", 10)
 			.style("fill", legendTextColor)
 			.attr("text-anchor", "middle")
@@ -395,7 +445,6 @@ function layer1(trans) {
 					return 0.3;
 				}
 			})
-			//.style("stroke", "#cc00cc")
 			.on("mouseover", mouseover)
 			.on("mouseleave", mouseleave)
 			.on("click", toSecLayer)
@@ -532,15 +581,14 @@ function layer1(trans) {
 		return Math.round(val);
 	}
 
-	// TODO highlight the scale line
 	function mouseover(d, i){
 		svg.select("#pop" + i)
-			.style("fill", "white")
+			.style("fill", "black")
 			// .style("fill", "black")
 			.style("fill-opacity", 1);			
 		
 		svg.select("#hotness" + i)
-			.style("fill", "white")
+			.style("fill", "black")
 			// .style("fill", "black")
 			.style("fill-opacity", 1);
 			
@@ -551,20 +599,31 @@ function layer1(trans) {
 			.html(function(d) {
 			return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
 			"<strong>Popularity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
-			"<strong>#Popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
-		});
-
-			
+			"<strong>Num. popularity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
+		});		
 		} else {
 
 			tip.offset([-10, 0])
 			.html(function(d) {
 				return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
 			"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
-			"<strong>#Hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
+			"<strong>Num. hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
 			
 		});
-			
+		}
+		svg.select("#pop_number" + d.popularity)
+				.style("font-size", "40px");
+		svg.select("#hot_number" + d.hotness)
+				.style("font-size", "40px");
+
+		if (d.popularity == 10) {
+			svg.select("#hot_number" + 0)
+				.style("font-size", "40px");
+		}
+
+		if (d.hotness == 10) {
+			svg.select("#pop_number" + 0)
+				.style("font-size", "40px");
 		}
 		tip.show(d);
 		
@@ -581,12 +640,26 @@ function layer1(trans) {
 			.style("fill", function(d) { return color(d.year); });
 
 		var coord = d3.mouse(this);
+		svg.select("#pop_number" + d.popularity)
+				.style("font-size", "20px");
+		svg.select("#hot_number" + d.hotness)
+				.style("font-size", "20px");
+
+		if (d.popularity == 10) {
+			svg.select("#hot_number" + 0)
+				.style("font-size", "20px");
+		}
+
+		if (d.hotness == 10) {
+			svg.select("#pop_number" + 0)
+				.style("font-size", "20px");
+		}
 		tip.hide(d);
-		// if (coord.y > center.y) {
-		// 	tip_pop.hide(d);
-		// } else {
+		 //if (coord.y > center.y) {
+			
+		 //} else {
 		// 	tip_hot.hide(d);	
-		// }
+		 //}
 	}
 
 	function toSecLayer(d, i){
