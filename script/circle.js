@@ -24,7 +24,7 @@ function layer1(trans) {
 	var margin = 40,
 		offset = 28,
 		width = 1024,
-		height = 640;
+		height = 720;
 		radius = 240,
 		r = 600;
 		center = {x:radius + margin, y:radius + margin},
@@ -85,6 +85,8 @@ function layer1(trans) {
 	tip = d3.tip().attr('class', 'd3-tip')
 				.offset([-10, 0]);
 
+
+
 	svg = d3.select("body").append("svg")
 		   	.attr("width", width)
 	    	.attr("height", height)
@@ -92,6 +94,13 @@ function layer1(trans) {
 	  		.attr("transform", "translate(" + (width - r) / 2 + "," + (height - r) / 2 + ")")
 	  		.call(tip);
 	
+	svg.append("text")
+		.attr("id", "layer1_title")
+		.text("Artist groupd by the hotness and familiarity per year")
+		.attr("transform", "translate(" + (5 - (width - r) / 2) + "," + (-30) + ")");
+
+	svg.attr("transform", "translate(" + (width - r) / 2 + "," + (height - r) / 2 + ")");
+
 	function start(data){
 			d3.select("img").remove();
 			initVar(data);
@@ -295,7 +304,7 @@ function layer1(trans) {
 			.attr("stroke", "black");
 		
 		drawLegendText(legend, 7, 30, 11.5, "Year");
-		drawLegendText(legend, 7, 15, 11.5, "Size: Num. hotness/familiarity");
+		drawLegendText(legend, 7, 15, 11.5, "Size: Num. Artist");
 	
 		legend.append("rect")
 			.attr("width", 125)
@@ -465,13 +474,15 @@ function layer1(trans) {
 			tip.html(function(d) {
 					return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
 					"<strong>Familiarity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
-					"<strong>Num. Familiarity:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
+					"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
+					"<strong>Num. Artist:</strong> <span style='color:red'>" + d.popArr.length + "</span>";
 				});		
 		} else {
 			tip.html(function(d) {
 					return "<strong>Year:</strong> <span style='color:red'>" + d.year + "</span><br />" + 
 					"<strong>Hotness:</strong> <span style='color:red'>" + d.hotness + "</span><br />" + 
-					"<strong>Num. hotness:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
+					"<strong>Familiarity:</strong> <span style='color:red'>" + d.popularity + "</span><br />" +
+					"<strong>Num. Artist:</strong> <span style='color:red'>" + d.hotArr.length + "</span>"; 
 				});
 		}
 		changeFontSize(d.popularity, d.hotness, "40px");
@@ -554,5 +565,5 @@ function layer1(trans) {
 				d3.select("svg").remove();
 				layer2(d.year, d.hotness, d.popularity);
 	    	});	
-	}
+	} 
 };

@@ -79,6 +79,16 @@ div {
 	top: 0px;
 }
 
+#layer1_title {
+  font-size: 25px;
+  fill: black;
+}
+
+#layer2_title {
+  font-size: 25px;
+  fill: black;
+}
+
 #bubDiv {
 	left: 0px;
 	height: 640px;
@@ -87,7 +97,7 @@ div {
 
 #infoDiv {
 	left: 1024px;
-	height: 640px;
+	height: 720px;
 	width: 200px;
 	overflow: scroll;
 }

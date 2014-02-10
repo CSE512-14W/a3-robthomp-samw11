@@ -4,8 +4,8 @@ function layer2(year, hotness, popularity) {
 	
 	//various global variables
 	var w = 1024,
-		h = 640,
-		r = 600,
+		h = 720,
+		r = 560,
 		infoW = 200,
 		textAnimDur = 500,
 		inTransLength = 1000,
@@ -37,6 +37,10 @@ function layer2(year, hotness, popularity) {
 		.attr("width", w)
 		.attr("height", h);
 	
+
+		// 
+		// .attr("transform", "translate(" + (5 - (w - r) / 2) + "," + (-40) + ")");
+
 	//the bubble vis g tag
 	var vis = bubSvg.append("svg:g")
 		.attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
@@ -59,7 +63,7 @@ function layer2(year, hotness, popularity) {
 
 	//activate the tooltip
 	vis.call(tip);
-	
+
 	//fetch the data
 	$.getJSON( "dataset/layer2.php", { year:year, hotness:hotness, familiar:popularity})
 		.done(function( data ) {
@@ -77,7 +81,7 @@ function layer2(year, hotness, popularity) {
 					//show text and change background 
 					outText	= bubSvg.append("svg:text")
 						.attr("font-size", "12.5")
-						.text("Click to Return")
+						.text("Click to Return to Layer 1")
 						.attr("x", w - 8)
 						.attr("text-anchor", "end")
 						.attr("y", 15);
@@ -92,7 +96,11 @@ function layer2(year, hotness, popularity) {
 					bubSvg.select("rect")
 						.attr("fill", l2backgroundFill);
 				});
-			
+				bubSvg.append("text")
+					.attr("x", 5)
+					.attr("y", 30)
+					.attr("id", "layer2_title")
+					.text("Artist with hotness " + hotness + " and familiarity " + popularity + " in " + year);
 			//organize data
 			var c = classes(data);
 	  
@@ -434,5 +442,9 @@ function layer2(year, hotness, popularity) {
 		legend.transition()
 			.duration(inTransLength)
 			.style("opacity", 0);
+		bubSvg.selectAll("text")
+			.transition()
+				.duration(inTransLength)
+				.style("opacity", 0);
 	}
 }
