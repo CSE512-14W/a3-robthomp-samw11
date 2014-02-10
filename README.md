@@ -8,9 +8,7 @@ a3-robthomp-samw11
 
 ## Project Name
 
-This is an example repository for assignment 3 submission. 
-(Put your a brief description of your final interactive visualization application and your dataset here.)
-
+Exploring songs data by artist, rating and year
 
 ## Running Instructions
 Access our visualization at http://homes.cs.washington.edu/~samw11/ or download this repository and run `python -m SimpleHTTPServer 9000` and access this from http://localhost:9000/.
