@@ -1,6 +1,7 @@
 function layer2(year, hotness, popularity) {
 	
-	var max = -1;
+	var max = -1,
+		min = 10000;
 	
 	//various global variables
 	var w = 1024,
@@ -96,17 +97,19 @@ function layer2(year, hotness, popularity) {
 					bubSvg.select("rect")
 						.attr("fill", l2backgroundFill);
 				});
-				bubSvg.append("text")
-					.attr("x", 5)
-					.attr("y", 30)
-					.attr("id", "layer2_title")
-					.text("Artist with hotness " + hotness + " and familiarity " + popularity + " in " + year);
+				
+			bubSvg.append("text")
+				.attr("x", 5)
+				.attr("y", 30)
+				.attr("id", "layer2_title")
+				.text("Artists with hotness " + hotness + " and familiarity " + popularity + " in " + year);
+		
 			//organize data
 			var c = classes(data);
 	  
 			//color scale has to be defined here, after the max avgDuration has been found
 			color = d3.scale.sqrt()
-				.domain([0, max])
+				.domain([min, max])
 				.range([l2circleFillRangeMin, l2circleFillRangeMax]);
   
   			//make legend
@@ -162,6 +165,9 @@ function layer2(year, hotness, popularity) {
 		root.forEach(function(child) { 
 			if (child.totDur/child.songs > max) {
 				max = child.totDur/child.songs;
+			}
+			if (child.totDur/child.songs < min) {
+				min = child.totDur/child.songs;
 			}
 			classes.push({artist: child.artist, value: child.songs, songs: child.songs, totDur: child.totDur, avgDur: (child.totDur/child.songs).toFixed(1)});
 		});
@@ -401,7 +407,7 @@ function layer2(year, hotness, popularity) {
 			.attr("font-size", 10)
 			.attr("fill", l2legendTextColor)
 			.attr("text-anchor", "middle")
-			.text("0");
+			.text(Math.round(min));
 		
 		legend.append("text")
 			.attr("x", 100)

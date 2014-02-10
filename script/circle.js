@@ -96,7 +96,7 @@ function layer1(trans) {
 	
 	svg.append("text")
 		.attr("id", "layer1_title")
-		.text("Artist groupd by the hotness and familiarity per year")
+		.text("Artists grouped by hotness and familiarity per year")
 		.attr("transform", "translate(" + (5 - (width - r) / 2) + "," + (-30) + ")");
 
 	svg.attr("transform", "translate(" + (width - r) / 2 + "," + (height - r) / 2 + ")");
