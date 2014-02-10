@@ -298,7 +298,7 @@ function layer1(trans) {
 		var legend = svg.append("g")
 		//background
 		legend.append("rect")
-			.attr("width", 165)
+			.attr("width", 145)
 			.attr("height", 75)
 			.attr("fill", legendBackground)
 			.attr("stroke", "black");
@@ -307,14 +307,14 @@ function layer1(trans) {
 		drawLegendText(legend, 7, 15, 11.5, "Size: Num. Artist");
 	
 		legend.append("rect")
-			.attr("width", 125)
+			.attr("width", 105)
 			.attr("height", 20)
 			.attr("x", 20)
 			.attr("y", 35)
 			.attr("fill", "url(#grad1)");
 		
 		drawLegendText(legend, 20, 65, 10, min).attr("text-anchor", "middle");
-		drawLegendText(legend, 145, 65, 10, max).attr("text-anchor", "middle");
+		drawLegendText(legend, 125, 65, 10, max).attr("text-anchor", "middle");
 		
 		legend.attr("transform", "translate(" + (5 - (width - r) / 2) + "," + (height - 185) + ")")
 			.attr("opacity", 0)

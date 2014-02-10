@@ -374,7 +374,7 @@ function layer2(year, hotness, popularity) {
 	
 		//background
 		legend.append("rect")
-			.attr("width", 140)
+			.attr("width", 150)
 			.attr("height", 80)
 			.attr("fill", l2legendBackground)
 			.attr("stroke", l2legendTextColor);
@@ -394,7 +394,7 @@ function layer2(year, hotness, popularity) {
 			.text("Color: Avg. Song Duration");
 	
 		legend.append("rect")
-			.attr("width", 80)
+			.attr("width", 110)
 			.attr("height", 20)
 			.attr("x", 20)
 			.attr("y", 40)
@@ -410,7 +410,7 @@ function layer2(year, hotness, popularity) {
 			.text(Math.round(min));
 		
 		legend.append("text")
-			.attr("x", 100)
+			.attr("x", 130)
 			.attr("y", 70)
 			.attr("font-size", 10)
 			.attr("text-anchor", "middle")
