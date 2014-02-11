@@ -12,6 +12,8 @@ a3-robthomp-samw11
 You can access our visualization at http://homes.cs.washington.edu/~samw11/ (it may run slowly the first time) or download the repository and run it on a server with PHP installed. We used the [MAMP package](http://www.mamp.info/en/index.html) during development if you don't have your own server.
 
 ## Description
+This visualization is an attempt to allow users to explore a very large dataset of songs along what we found to be interesting channels. Specifically, by the year the songs were recorded, their artist, and their artist's rating.
+
 The visualization is divided into three layers. The first layer is a pair of polar scatterplots of artists binned on year, popularity rating, and hotness rating. Point size is dependent on the number of artists in that bin. Points are shown twice on the upper and lower half-circle graphs. Year decides radius for both but the top graph maps hotness while the bottom graph maps familiarity onto angle. Mousing over a point will show a tooltip with that point's year, hotness, familiarity, and the number of artists in that bin. The corresponding point on the opposing half-circle graph will also automatically be highlighted.
 
 Clicking a point will transition to the second layer, a bubble graph, that shows more detail about the artists in that bin, including the number of songs they released that year and the average duration of those songs. Mousing over a bubble will display the full artist name, the number of songs they produced that year, and the average duration of those songs in seconds.
@@ -19,7 +21,7 @@ Clicking a point will transition to the second layer, a bubble graph, that shows
 Clicking an artist bubble will display the full song information the database has on them, including all of their songs sorted by year then title and each song's duration. Clicking outside of the second layer bubble graph will transition back to the first visualization layer scatterplot.
 
 ## Dataset
-The data domain we used for our visualization is the (Million Song Dataset)[http://labrosa.ee.columbia.edu/millionsong/] . The dataset contains collections of audio features and metadata for a million contemporary popular music tracks. Since the full dataset is very large, approximately 300GB, we eventually decided to use a subset with most of the metadata filtered out to only the song title, album, artist name, duration of the song in seconds, artist familiarity, artist hotness and the year of the song. The final song total is approximately 500,000, half of the original database.
+The data domain we used for our visualization is the [Million Song Dataset](http://labrosa.ee.columbia.edu/millionsong/). The dataset contains collections of audio features and metadata for a million contemporary popular music tracks. Since the full dataset is very large, approximately 300GB, we eventually decided to use a subset with most of the metadata filtered out to only the song title, album, artist name, duration of the song in seconds, artist familiarity, artist hotness and the year of the song. The final song total is approximately 500,000, half of the original database.
 
 Here are a few tableau visualizations of the full dataset that influenced our design decisions.
 
@@ -131,7 +133,7 @@ Rob:
 * D3
 * D3-tip
 * jQuery
-* D3’s (Zoomable Circle Packing)[http://bl.ocks.org/mbostock/7607535] Example
-* D3’s ((Bar Chart with Tooltip)[http://bl.ocks.org/Caged/6476579] Example
-* D3’s (Bubble Chart)[http://bl.ocks.org/mbostock/4063269] Example
+* D3’s [Zoomable Circle Packing](http://bl.ocks.org/mbostock/7607535) Example
+* D3’s [Bar Chart with Tooltip](http://bl.ocks.org/Caged/6476579) Example
+* D3’s [Bubble Chart](http://bl.ocks.org/mbostock/4063269) Example
 
